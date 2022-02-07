@@ -16,41 +16,44 @@ def main():
     data_source = source()
     if data_source:
         src = data.Data(data_source['url'], data_source['token'])
-        registrations = src.registrations()
-        activities = registrations['name'].unique()
-
-        col1, col2 = st.columns(2)
-        col1.metric("Aantal zichtbare activiteiten", len(activities))
-        col2.metric("Totaal aantal aanmeldingen", len(registrations))
-
-        with st.expander('Filter activiteiten'):
-            activities = st.multiselect('Weergeven Activiteiten', activities, default=activities)
-        registrations = registrations[registrations['name'].isin(activities)]
-
-        fig_regs = px.histogram(
-            registrations,
-            x='name',
-            title='Aanmeldingen per activiteit',
-            labels={'name':'Activiteit'}
-        )
-        st.write(fig_regs)
-
-        registrations = registrations.sort_values('registration')
-        registrations['cumulative'] = registrations.groupby('name').cumcount()
-        fig_time = px.line(
-            registrations,
-            x='registration',
-            y='cumulative',
-            color='name',
-            title='Aanmeldingen over tijd',
-            labels={'registration':'Datum', 'cumulative':'Aanmeldingen', 'name':'Activiteit'}
-        )
-        st.write(fig_time)
-
+        basic_view(src)
+        
         if src.authenticated:
             st.text(src.admin)
             groups = src.groups()
             st.table(groups)
+
+def basic_view(src):
+    registrations = src.registrations()
+    activities = registrations['name'].unique()
+
+    col1, col2 = st.columns(2)
+    col1.metric("Aantal zichtbare activiteiten", len(activities))
+    col2.metric("Totaal aantal aanmeldingen", len(registrations))
+
+    with st.expander('Filter activiteiten'):
+        activities = st.multiselect('Weergeven Activiteiten', activities, default=activities)
+    registrations = registrations[registrations['name'].isin(activities)]
+
+    fig_regs = px.histogram(
+        registrations,
+        x='name',
+        title='Aanmeldingen per activiteit',
+        labels={'name':'Activiteit'}
+    )
+    st.write(fig_regs)
+
+    registrations = registrations.sort_values('registration')
+    registrations['cumulative'] = registrations.groupby('name').cumcount()
+    fig_time = px.line(
+        registrations,
+        x='registration',
+        y='cumulative',
+        color='name',
+        title='Aanmeldingen over tijd',
+        labels={'registration':'Datum', 'cumulative':'Aanmeldingen', 'name':'Activiteit'}
+    )
+    st.write(fig_time)
 
 def source():
     # initialize session values
