@@ -1,8 +1,8 @@
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
 from flatdict import FlatterDict
+from dateutil.parser import parse
 import pandas as pd
-import streamlit as st
 
 # flatten array of nested data to array of single level dictionary
 def flatten(data, delimiter=':'):
@@ -32,6 +32,22 @@ class Data:
     def authenticated(self):
         return self._authenticated
 
+    @property
+    def admin(self):
+        if not self._authenticated:
+            return false
+        
+        query = gql('''
+            {
+                user {
+                    isAdmin
+                }
+            }
+        ''')
+
+        result = self.client.execute(query)
+        return result['user']['isAdmin']
+
     def activities(self):
         query = gql('''
             {
@@ -56,7 +72,6 @@ class Data:
             {
                 current {
                     name
-                    deadline
                     registrations {
                         created
                         deleted
@@ -66,7 +81,7 @@ class Data:
         ''')
 
         result = self.client.execute(query)
-        return flatten(result['current'])
+        return pd.DataFrame([[activity['name'], parse(reg['created'])] for activity in result['current'] for reg in activity['registrations'] if not reg['deleted']], columns=['name', 'registration'])
 
     def groups(self):
         if not self._authenticated:
