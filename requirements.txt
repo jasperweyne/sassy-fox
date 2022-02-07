@@ -50,8 +50,7 @@ parso==0.8.3
 pexpect==4.8.0
 pickleshare==0.7.5
 Pillow==8.4.0
-pip==20.0.2
-pkg-resources==0.0.0
+pip==22.0.3
 prometheus-client==0.12.0
 promise==2.3
 prompt-toolkit==3.0.23
@@ -71,7 +70,6 @@ pyzmq==22.3.0
 requests==2.26.0
 Rx==1.6.1
 Send2Trash==1.8.0
-setuptools==44.0.0
 six==1.16.0
 smmap==5.0.0
 streamlit==1.2.0
@@ -81,7 +79,7 @@ toml==0.10.2
 toolz==0.11.2
 tornado==6.1
 traitlets==5.1.1
-typing-extensions==4.0.1
+typing_extensions==4.0.1
 tzdata==2021.5
 tzlocal==4.1
 urllib3==1.26.7
