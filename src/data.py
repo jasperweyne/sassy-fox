@@ -1,16 +1,21 @@
 from gql import gql, Client
 from gql.transport.requests import RequestsHTTPTransport
-from flatdict import FlatterDict
-from dateutil.parser import parse
+from flatdict import FlatDict
 import pandas as pd
 
-# flatten array of nested data to array of single level dictionary
+# flatten array of nested dicts to array of single level dictionary
 def flatten(data, delimiter=':'):
     # flatten data
-    frame = pd.DataFrame(map(lambda x: FlatterDict(x, delimiter=delimiter), data))
+    frame = pd.DataFrame(map(lambda x: FlatDict(x, delimiter=delimiter), data))
 
     # drop all columns that only contain empty values and return
     return frame.dropna(axis=1, how='all')
+
+# unwrap nested arrays in an array of dicts to a single array of dicts
+# this replicates the contents of the parent dict to all nested instances
+# eg. [{'a': 'x', 'b':[1, 2]}] -> [{'a': 'x', 'b':1}, [{'a': 'x', 'b':2}]
+def repl(data, ref):
+    return [{**row, ref: k} for row in data for k in row[ref]]
 
 # create a client
 class Data:
@@ -35,7 +40,7 @@ class Data:
     @property
     def admin(self):
         if not self._authenticated:
-            return false
+            return False
         
         query = gql('''
             {
@@ -81,7 +86,8 @@ class Data:
         ''')
 
         result = self.client.execute(query)
-        return pd.DataFrame([[activity['name'], parse(reg['created'])] for activity in result['current'] for reg in activity['registrations'] if not reg['deleted']], columns=['name', 'registration'])
+        registrations = flatten(repl(result['current'], 'registrations'))
+        return registrations.loc[registrations["registrations:deleted"].isnull(), ['name', 'registrations:created']]
 
     def user_relations(self):
         query = gql('''

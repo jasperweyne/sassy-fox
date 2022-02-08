@@ -49,15 +49,15 @@ def basic_view(src: data.Data):
     )
     st.write(fig_regs)
 
-    registrations = registrations.sort_values('registration')
+    registrations = registrations.sort_values('registrations:created')
     registrations['cumulative'] = registrations.groupby('name').cumcount()
     fig_time = px.line(
         registrations,
-        x='registration',
+        x='registrations:created',
         y='cumulative',
         color='name',
         title='Aanmeldingen over tijd',
-        labels={'registration':'Datum', 'cumulative':'Aanmeldingen', 'name':'Activiteit'}
+        labels={'registrations:created':'Datum', 'cumulative':'Aanmeldingen', 'name':'Activiteit'}
     )
     st.write(fig_time)
 
