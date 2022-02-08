@@ -16,14 +16,20 @@ def main():
     data_source = source()
     if data_source:
         src = data.Data(data_source['url'], data_source['token'])
-        basic_view(src)
-        
-        if src.authenticated:
-            st.text(src.admin)
-            groups = src.groups()
-            st.table(groups)
 
-def basic_view(src):
+        page = 'Actueel'
+        if src.authenticated:
+            st.markdown("### Navigatie")
+            pages = ['Actueel', 'Gebruiker']
+            page = st.radio('Selecteer pagina', pages)
+            st.header(page)
+
+        if page == 'Gebruiker':
+            user_view(src)
+        else:
+            basic_view(src)
+
+def basic_view(src: data.Data):
     registrations = src.registrations()
     activities = registrations['name'].unique()
 
@@ -54,6 +60,26 @@ def basic_view(src):
         labels={'registration':'Datum', 'cumulative':'Aanmeldingen', 'name':'Activiteit'}
     )
     st.write(fig_time)
+
+def user_view(src: data.Data):
+    relations = src.user_relations()
+    registrations = src.user_registrations()
+
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Totaal aantal groepen", len(relations))
+    col2.metric("Totaal aantal aanmeldingen", len(registrations))
+    col3.metric("Totale bijdrage activiteiten", f"€ {registrations['option:price'].sum() / 100}")
+
+    bins = st.slider('Aantal datumgroepen', 2, 100)
+    fig_activities = px.histogram(
+        registrations,
+        x="activity:start",
+        marginal="rug",
+        title='Aantal aanmeldingen over tijd',
+        labels={'activity:start':'Periode'},
+        nbins=bins
+    )
+    st.write(fig_activities)
 
 def source():
     # initialize session values

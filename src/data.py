@@ -83,6 +83,42 @@ class Data:
         result = self.client.execute(query)
         return pd.DataFrame([[activity['name'], parse(reg['created'])] for activity in result['current'] for reg in activity['registrations'] if not reg['deleted']], columns=['name', 'registration'])
 
+    def user_relations(self):
+        query = gql('''
+            {
+                user {
+                    relations {
+                        group {
+                            name
+                        }
+                    }
+                }
+            }
+        ''')
+
+        result = self.client.execute(query)
+        return flatten(result['user']['relations'])
+    
+    def user_registrations(self):
+        query = gql('''
+            {
+                user {
+                    registrations {
+                        activity {
+                            name
+                            start
+                        }
+                        option {
+                            price
+                        }
+                    }
+                }
+            }
+        ''')
+
+        result = self.client.execute(query)
+        return flatten(result['user']['registrations'])
+
     def groups(self):
         if not self._authenticated:
             raise Exception("Source unauthenticated")
