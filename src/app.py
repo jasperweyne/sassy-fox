@@ -112,7 +112,7 @@ def source():
         delete_label = 'Huidige bron verwijderen' if source_cnt == 1 else 'Alle bronnen verwijderen'
         if st.button(delete_label):
             st.session_state.sources = {}
-            st.experimental_rerun()
+            st.rerun()
 
         source_form()
 
@@ -135,7 +135,7 @@ def source_form():
                 'url': url + '/api/graphql/',
                 'token': token if token != '' else None,
             }
-            st.experimental_rerun()
+            st.rerun()
 
 if __name__ == "__main__":
     main()

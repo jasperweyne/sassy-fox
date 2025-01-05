@@ -1,0 +1,12 @@
+[project]
+name = "sassy-fox"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "flatdict>=4.0.1",
+    "gql[requests]>=3.5.0",
+    "plotly>=5.24.1",
+    "streamlit>=1.41.1",
+]
